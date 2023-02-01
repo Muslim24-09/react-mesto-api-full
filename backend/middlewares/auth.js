@@ -6,6 +6,7 @@ require('dotenv').config();
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, _, next) => {
+  console.log(req.rawHeaders);
   // закоментированный код не работает - никто не отвечает почему
   // const { Authorization } = req.headers;
 
@@ -30,7 +31,7 @@ module.exports = (req, _, next) => {
     payload = jwt.verify(token, { expiresIn: '7d' }, NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret');
     // payload = jwt.verify(token, 'super-strong-secret');
   } catch (err) {
-    next(new UnauthorizedError('Требуется авторизация'));
+    throw new UnauthorizedError('Требуется авторизация');
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса

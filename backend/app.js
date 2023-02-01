@@ -65,19 +65,14 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// для теста без авторизации
-app.post('/signout', unAuthorized);
-
 app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use(errorLogger);
-
-app.use(errors());
+// для теста без авторизации
+app.post('/signout', unAuthorized);
 
 app.use('*', (_, __, next) => next(new NotFoundError('Страница не найдена')));
-
 app.use((err, _, res, next) => {
   if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
@@ -86,6 +81,10 @@ app.use((err, _, res, next) => {
   }
   next();
 });
+
+app.use(errorLogger);
+
+app.use(errors());
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

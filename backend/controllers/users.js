@@ -1,11 +1,14 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+require('dotenv').config();
 
 const ConflictError = require('../errors/ConflictError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
+// const UnauthorizedError = require('../errors/UnauthorizedError');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const createUser = (req, res, next) => {
   const {
@@ -38,8 +41,6 @@ const createUser = (req, res, next) => {
           .catch((err) => {
             if (err.name === 'ValidationError') {
               next(new BadRequestError('Неправильно набран логин или пароль'));
-            } else if (userAlreadyCreated) {
-              next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
             } else next(err);
           });
       } else {
@@ -54,10 +55,7 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        throw new UnauthorizedError('Пользователь с таким логином/паролем не найден');
-      }
-      const token = jwt.sign({ _id: user._id }, 'super-strong-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'super-strong-secret', { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,
@@ -66,11 +64,7 @@ const login = (req, res, next) => {
         })
         .send({ message: 'Успешная авторизация' });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError({ message: 'Неправильно набран логин или пароль' }));
-      } else next(err);
-    });
+    .catch((err) => next(err));
 };
 
 const getUsers = (_, res, next) => {
@@ -118,8 +112,10 @@ const updateUser = (req, res, next) => {
       return res.status(200).send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError' || err.kind === 'ObjectId') {
+      if (err.name === 'ValidationError') {
         next(new BadRequestError('Неправильно набран логин или пароль'));
+      } else if (err.kind === 'ObjectId') {
+        next(new BadRequestError('Неправильно указан тип ключа'));
       } else next(err);
     });
 };
@@ -136,16 +132,14 @@ const updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Запрашиваемый пользователь не найден'));
+        next(new BadRequestError('Неверно введены данные'));
       }
       return next(err);
     });
 };
-
 const unAuthorized = (_, res) => {
-  const token = '';
   res
-    .cookie('jwt', token, {
+    .cookie('jwt', '', {
       maxAge: 3600000 * 24 * 7,
       httpOnly: true,
       sameSite: true,
