@@ -1,31 +1,24 @@
+require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const UnauthorizedError = require('../errors/UnauthorizedError');
-// const extractBearerToken = (header) => header.replace('Bearer ', '');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, _, next) => {
-  // закоментированный код не работает - никто не отвечает почему
-  // const { Authorization } = req.headers;
-
-  // if (!Authorization || !Authorization.startsWith('Bearer ')) {
-  //   next(new UnauthorizedError('Требуется авторизация'));
-  // }
-  // const token = extractBearerToken(Authorization);
-
-  // иначе не работает авторизация. Причину не нашел - в request не приходят заголовки (headers)
-  const token = req.rawHeaders.find((el) => el.match('jwt')) ? req.rawHeaders.find((el) => el.match('jwt')).replace('jwt=', '') : 0;
-
-  if (!token) {
-    throw new UnauthorizedError('Требуется авторизация');
+  console.log(req.headers.authorization);
+  if (!req.headers.authorization) {
+    throw new UnauthorizedError('111 Требуется авторизация');
   }
+
+  const token = req.headers.cookie.replace('jwt=', '');
+
   let payload;
-
   try {
-    payload = jwt.verify(token, 'super-strong-secret');
+    payload = jwt.verify(token, `${NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret'}`);
   } catch (err) {
-    next(new UnauthorizedError('Требуется авторизация'));
+    throw new UnauthorizedError('222 Требуется авторизация');
   }
+  req.user = payload;
 
-  req.user = payload; // записываем пейлоуд в объект запроса
-
-  return next(); // пропускаем запрос дальше
+  return next();
 };

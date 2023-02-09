@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const express = require('express');
 const bodyParser = require('body-parser');
 
+require('dotenv').config();
+
 const helmet = require('helmet');
 const { celebrate, Joi, errors } = require('celebrate');
 
@@ -14,12 +16,28 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 const MONGO_URL = 'mongodb://localhost:27017/mestodb';
 const { PORT = 3000 } = process.env;
 
+const cors = (req, res, next) => {
+  const { origin } = req.headers;
+  const { method } = req;
+  const requestHeaders = req.headers['access-control-request-headers'];
+  const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Access-Control-Allow-Credentials', true);
+  if (method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
+    res.header('Access-Control-Allow-Headers', requestHeaders);
+    return res.end();
+  }
+  return next();
+};
 mongoose.set('strictQuery', false);
 
 mongoose.connect(MONGO_URL);
 const app = express();
 
 app.use(requestLogger);
+
+app.use(cors);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -48,16 +66,17 @@ app.post('/signin', celebrate({
   }),
 }), login);
 
-// для теста без авторизации
-app.post('/signout', unAuthorized);
-
 app.use(auth);
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use(errors());
+// для теста без авторизации
+app.post('/signout', unAuthorized);
 
 app.use('*', (_, __, next) => next(new NotFoundError('Страница не найдена')));
+
+app.use(errorLogger);
+app.use(errors());
 
 app.use((err, _, res, next) => {
   if (err.statusCode) {
@@ -67,8 +86,6 @@ app.use((err, _, res, next) => {
   }
   next();
 });
-
-app.use(errorLogger);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

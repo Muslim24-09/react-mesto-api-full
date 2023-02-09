@@ -13,7 +13,7 @@ import { PopupDeleteCard } from "./PopupDeleteCard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Login } from "./Login";
 import { Register } from "./Register";
-import { login, register, checkToken } from "../utils/auth";
+import { login, register } from "../utils/auth";
 import { InfoToolTip } from './InfoTooltip';
 
 import successIcon from "../images/success.svg";
@@ -39,33 +39,59 @@ export const App = () => {
 
   const history = useHistory();
 
-  useEffect(() => {
-    if (isSuccessLoggedIn) {
-      Promise.all([api.getAddingPictures(), api.getUserInfo()])
-        .then(([cardsInfo, userInfo]) => {
-          setCurrentUser(userInfo)
-          setCards(cardsInfo)
-        })
-        .catch((err) => console.log(err))
-    } else return;
+  // getData
+  // useEffect(() => {
+  //   if (isSuccessLoggedIn) {
+  //     Promise.all([api.getAddingPictures(), api.getUserInfo()])
+  //       .then(([cardsInfo, userInfo]) => {
+  //         setCurrentUser(userInfo)
+  //         setCards(cardsInfo)
+  //       })
+  //       .catch((err) => console.log(err))
+  //   } else return;
 
-  }, [isSuccessLoggedIn])
+  // }, [isSuccessLoggedIn])
+
+  // useEffect(() => {
+  //   const token = localStorage.getItem("jwt")
+  //   if (token) {
+  //     checkToken()
+  //       .then((res) => {
+  //         setIsSuccessLoggedIn(true);
+  //         setEmail(res.data.email)
+  //         history.push('/')
+  //       })
+  //       .catch((err) => {
+  //         if (err.status === 401) {
+  //           console.log("401 — Токен не передан или передан не в том формате");
+  //         }
+  //         console.log("401 — Переданный токен некорректен");
+  //       });
+  //   }
+  // }, [history])
+
+  function takeData() {
+    Promise.all([api.getAddingPictures(), api.getUserInfo()])
+      .then(([cardsInfo, userInfo]) => {
+        console.log(474747, userInfo);
+        setCurrentUser(userInfo)
+        setCards(cardsInfo)
+      })
+      .catch((err) => console.log(777, err))
+  }
+
+  function checkCookies (cookie, value) {
+    const str = '^(.*;)?s*' + cookie + 's*=s*[^;]+(.*)?$'
+    const regExp = new RegExp(str)
+    const res = document.cookie.match(regExp)
+    return res !== null ? res[0] === cookie + '=' + value : false
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt")
-    if (token) {
-      checkToken(token)
-        .then((res) => {
-          setIsSuccessLoggedIn(true);
-          setEmail(res.data.email)
-          history.push('/')
-        })
-        .catch((err) => {
-          if (err.status === 401) {
-            console.log("401 — Токен не передан или передан не в том формате");
-          }
-          console.log("401 — Переданный токен некорректен");
-        });
+    if (checkCookies('authorized', true)) {
+      setIsSuccessLoggedIn(true)
+      takeData()
+      history.push('/')
     }
   }, [history])
 
@@ -162,7 +188,7 @@ export const App = () => {
           setInfoToolTipOpen(true)
           setPopupMessage('Вы успешно зарегистрировались!')
           setImageSrc(successIcon)
-          history.push('/sign-in')
+          history.push('/signin')
         })
       .catch((err) => {
         if (err.status === 400) {
@@ -176,14 +202,18 @@ export const App = () => {
   }
 
   const handleLoginSubmit = (userData) => {
+
     login(userData).then(
       (res) => {
+        console.log(888, res);
         setIsSuccessLoggedIn(true);
+        takeData()
         localStorage.setItem('jwt', res.token);
         setEmail(userData.email)
         history.push('/');
       })
       .catch((err) => {
+        console.log(101010, err);
         setImageSrc(failIcon)
         setPopupMessage('Пользователь с таким логином/паролем не найден')
         setInfoToolTipOpen(true)
@@ -198,7 +228,7 @@ export const App = () => {
   function handleSignOut() {
     localStorage.removeItem("jwt");
     setIsSuccessLoggedIn(false);
-    history.push("/sign-in");
+    history.push("/signin");
   }
 
   return (
@@ -207,12 +237,12 @@ export const App = () => {
         <div className="page__container" onKeyDown={closeAllPopupsEsc} >
           <Header userEmail={email} onSignOut={handleSignOut} />
           <Switch>
-            <Route path="/sign-up">
+            <Route path="/signup">
               <Register
                 onRegister={handleRegisterSubmit}
               />
             </Route>
-            <Route path="/sign-in">
+            <Route path="/signin">
               <Login
                 onLogin={handleLoginSubmit}
               />
@@ -231,7 +261,7 @@ export const App = () => {
               onDeleteCard={handlePopupSubmitOpen}
             />
             <Route>
-              {isSuccessLoggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
+              {isSuccessLoggedIn ? <Redirect to="/" /> : <Redirect to="/signin" />}
             </Route>
           </Switch>
 
@@ -246,14 +276,14 @@ export const App = () => {
             onClose={closeAllPopups}
             onDeleteCard={handleCardDelete}
             cardToDelete={itemToDelete} />
-          <InfoToolTip 
-          isOpen={isInfoToolTipOpen} 
-          onClose={closeAllPopups} 
-          isSuccess={isSuccessRegister} 
-          isSuccessLogin={isSuccessLoggedIn}
-          message={popupMessage}
-          imgSrc={imageSrc}
-           />
+          <InfoToolTip
+            isOpen={isInfoToolTipOpen}
+            onClose={closeAllPopups}
+            isSuccess={isSuccessRegister}
+            isSuccessLogin={isSuccessLoggedIn}
+            message={popupMessage}
+            imgSrc={imageSrc}
+          />
         </div>
       </div>
     </CurrentUserContext.Provider>

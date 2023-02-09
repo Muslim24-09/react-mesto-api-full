@@ -8,20 +8,20 @@ export const Header = ({ userEmail, onSignOut }) => {
 			<div className="header__logo"></div>
 
 			<Switch>
-				<Route exact path="/sign-in">
-					<Link  to="/sign-up" className="header__link">
+				<Route exact path="/signin">
+					<Link  to="/signup" className="header__link">
 						Регистрация
 					</Link>
 				</Route>
-				<Route exact path="/sign-up">
-					<Link to="/sign-in" className="header__link">
+				<Route exact path="/signup">
+					<Link to="/signin" className="header__link">
 						Войти
 					</Link>
 				</Route>
 				<Route exact path="/">
 			<div className="header__user-info">
 						<p className="header__email">{userEmail}</p>
-						<Link to='./sign-in' className="header__link" onClick={onSignOut}>Выйти</Link>
+						<Link to='./signin' className="header__link" onClick={onSignOut}>Выйти</Link>
 					</div>
 			</Route>
 

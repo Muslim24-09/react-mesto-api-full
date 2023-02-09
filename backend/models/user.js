@@ -1,13 +1,12 @@
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const validator = require('validator');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    minlength: 2,
-    maxlength: 30,
     unique: true,
     validate: {
       validator: (email) => validator.isEmail(email),
@@ -43,18 +42,36 @@ const userSchema = new mongoose.Schema({
 });
 
 // eslint-disable-next-line func-names
-userSchema.statics.findUserByCredentials = function (email, password) {
+// userSchema.statics.findUserByCredentials = function (email, password) {
+//   return this.findOne({ email }).select('+password')
+//     .then((user) => {
+//       if (!user) {
+//         throw new UnauthorizedError('Пользователь с таким логином/паролем не найден');
+//       }
+//       return bcrypt.compare(password, user.password)
+//         .then((matched) => {
+//           if (!matched) {
+//             throw new UnauthorizedError('Пользователь с таким логином/паролем не найден');
+//           }
+//           return user;
+//         });
+//     });
+// };
+
+userSchema.statics.findUserByCredentials = function findUserByCredentials(email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return 0;
+        throw new UnauthorizedError('Неправильные почта или пароль');
       }
+
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return 0;
+            throw new UnauthorizedError('Неправильные почта или пароль');
           }
-          return user;
+
+          return user; // теперь user доступен
         });
     });
 };

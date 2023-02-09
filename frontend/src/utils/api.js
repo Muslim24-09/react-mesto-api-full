@@ -1,101 +1,124 @@
 const authorisationData = {
-  baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-52', options: {
-    authorization: '4d3c9e1d-cc98-4110-97fa-b50511b9880a',
-    'Content-Type': 'application/json'
-  }
+  baseUrl: ' https://api.mooslim-mesto.nomoredomainsclub.ru',
+  headers: {
+    Accept: "application/json",
+    "Content-Type": "application/json",
+  },
 }
 
 class Api {
   _baseUrl;
-  _options;
+  _headers;
 
-  constructor({ baseUrl, options }) {
+  constructor({ baseUrl, headers }) {
     this._baseUrl = baseUrl;
-    this._options = options
+    this._headers = headers
   }
 
   _checkResponse(res) {
     if (res.ok) {
       return res.json()
     } else {
-      return Promise.reject(`Ошибка: ${res.status}`)
+      // return Promise.reject(`Ошибка: ${res.status}`)
+      return Promise.reject(res)
     }
   }
 
-  getAddingPictures() {
-    return fetch(`${this._baseUrl}/cards`, {
-      headers: this._options
-    })
+  _checkRequest(url, options) {
+    options.credentials = 'include'
+    return fetch(url, options)
       .then(res => this._checkResponse(res))
   }
 
+  // сделано
+  getAddingPictures() {
+    const url = `${this._baseUrl}/cards`;
+    const options = {
+      method: 'GET',
+      headers: this._headers
+    }
+    return this._checkRequest(url, options)
+  }
+
+  // сделано
   addItem({ name, link }) {
-    return fetch(`${this._baseUrl}/cards`, {
+    const url = `${this._baseUrl}/cards`
+    const options = {
       method: 'POST',
-      headers: this._options,
+      headers: this._headers,
       body: JSON.stringify({
         name: `${name}`,
         link: `${link}`
       })
-    })
-      .then(res => this._checkResponse(res))
+    }
+    return this._checkRequest(url, options)
   }
 
+  // done
   removeItem(itemId) {
-    return fetch(`${this._baseUrl}/cards/${itemId}`, {
+    const url = `${this._baseUrl}/cards/${itemId}`
+    const options = {
       method: 'DELETE',
-      headers: this._options,
-    })
-      .then(res => this._checkResponse(res))
+      headers: this._headers
+    }
+    return this._checkRequest(url, options)
   }
 
+  // done
   changeLikeCardStatus(itemId, isLiked) {
+    const url = `${this._baseUrl}/cards/${itemId}/likes`
     if (!isLiked) {
-      return fetch(`${this._baseUrl}/cards/${itemId}/likes`, {
+      const options = {
         method: 'DELETE',
-        headers: this._options
-      })
-        .then(res => this._checkResponse(res));
+        headers: this._headers
+      }
+      return this._checkRequest(url, options)
     } else {
-      return fetch(`${this._baseUrl}/cards/${itemId}/likes`, {
+      const options = {
         method: 'PUT',
-        headers: this._options
-      })
-        .then(res => this._checkResponse(res));
+        headers: this._headers
+      }
+      return this._checkRequest(url, options)
     }
   }
 
+  // сделано
   getUserInfo() {
-    return fetch(`${this._baseUrl}/users/me`, {
-      headers: this._options
-    })
-      .then(res => this._checkResponse(res))
+    const url = `${this._baseUrl}/users/me`
+    const options = {
+      method: 'GET',
+      headers: this._headers
+    }
+    return this._checkRequest(url, options)
   }
 
+
   updateUserInfo({ name, about }) {
-    return fetch(`${this._baseUrl}/users/me`, {
+    const url = `${this._baseUrl}/users/me`
+    const options = {
       method: 'PATCH',
-      headers: this._options,
+      headers: this._headers,
       body: JSON.stringify({
         name: `${name}`,
         about: `${about}`
       })
-    })
-      .then(res => this._checkResponse(res))
+    }
+    return this._checkRequest(url, options)
   }
 
   updateUserAvatar({ avatar }) {
-    return fetch(`${this._baseUrl}/users/me/avatar`, {
+    const url = `${this._baseUrl}/users/me/avatar`
+    const options = {
       method: 'PATCH',
-      headers: this._options,
+      headers: this._headers,
       body: JSON.stringify({
         avatar: `${avatar}`
       })
-
-    })
-      .then(res => this._checkResponse(res))
+    }
+    return this._checkRequest(url, options)
   }
 }
+
 export const api = new Api(authorisationData)
 
 
