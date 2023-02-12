@@ -19,13 +19,14 @@ class Api {
     if (res.ok) {
       return res.json()
     } else {
-      // return Promise.reject(`Ошибка: ${res.status}`)
-      return Promise.reject(res)
+      return Promise.reject(`Ошибка: ${res.status}`)
+      // return Promise.reject(res)
     }
   }
 
   _checkRequest(url, options) {
-    options.credentials = 'include'
+    options.credentials = 'include';
+    options.mode = 'no-cors'
     return fetch(url, options)
       .then(res => this._checkResponse(res))
   }

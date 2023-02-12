@@ -13,7 +13,7 @@ import { PopupDeleteCard } from "./PopupDeleteCard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Login } from "./Login";
 import { Register } from "./Register";
-import { login, register } from "../utils/auth";
+import {  login, register } from "../utils/auth";
 import { InfoToolTip } from './InfoTooltip';
 
 import successIcon from "../images/success.svg";
@@ -55,7 +55,7 @@ export const App = () => {
   // useEffect(() => {
   //   const token = localStorage.getItem("jwt")
   //   if (token) {
-  //     checkToken()
+  //     checkToken(token)
   //       .then((res) => {
   //         setIsSuccessLoggedIn(true);
   //         setEmail(res.data.email)
@@ -205,7 +205,6 @@ export const App = () => {
 
     login(userData).then(
       (res) => {
-        console.log(888, res);
         setIsSuccessLoggedIn(true);
         takeData()
         localStorage.setItem('jwt', res.token);
@@ -213,7 +212,6 @@ export const App = () => {
         history.push('/');
       })
       .catch((err) => {
-        console.log(101010, err);
         setImageSrc(failIcon)
         setPopupMessage('Пользователь с таким логином/паролем не найден')
         setInfoToolTipOpen(true)

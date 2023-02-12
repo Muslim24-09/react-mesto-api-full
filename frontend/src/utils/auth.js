@@ -2,20 +2,21 @@
 const BASE_URL = 'https://api.mooslim-mesto.nomoredomainsclub.ru'
 
 function checkResponse(res) {
+  console.log(111, res);
   if (res.ok) {
     return res.json();
   }
-  return Promise.reject(`${res.message}`);
+  return Promise.reject(`222${res.message}`);
 }
 
 export const register = ({email, password}) => {
   return fetch(`${BASE_URL}/signup`, {
+    credentials: 'include',
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    credentials: 'include',
     body: JSON.stringify({
       email: email,
       password: password,
@@ -29,7 +30,6 @@ export const login = ({email, password}) => {
     method: "POST",
     credentials: 'include',
     headers: {
-      // "Content-Type": "application/json",
       Accept: "application/json",
       "Content-Type": "application/json",
     },
@@ -39,9 +39,9 @@ export const login = ({email, password}) => {
     }),
   })
   .then((data) => {
-    console.log(777, data);
-      // if (data.token) {
-      if (data.ok) {
+
+      if (data.token) {
+      // if (data.ok) {
         localStorage.setItem("jwt", data.token);
         return data;
       }
@@ -49,14 +49,15 @@ export const login = ({email, password}) => {
     .then(checkResponse)
 };
 
-// export const checkToken = () => {
-//   return fetch(`${BASE_URL}/users/me`, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       // Authorization: `Bearer ${jwt}`,
-//     },
-//     credentials: 'include',
-//   })
-//     .then(checkResponse)
-// };
+export const checkToken = () => {
+  const jwt = localStorage.getItem("jwt")
+  return fetch(`${BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Cookies: `jwt=${jwt}`,
+    },
+    credentials: 'include',
+  })
+    .then(checkResponse)
+};
