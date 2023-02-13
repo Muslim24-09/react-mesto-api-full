@@ -38,15 +38,14 @@ export const login = ({email, password}) => {
       password: password,
     }),
   })
+  .then(checkResponse)// поставить выше then где ты localstorage
   .then((data) => {
-
       if (data.token) {
       // if (data.ok) {
         localStorage.setItem("jwt", data.token);
         return data;
       }
     })
-    .then(checkResponse)
 };
 
 export const checkToken = () => {

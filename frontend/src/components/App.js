@@ -13,7 +13,7 @@ import { PopupDeleteCard } from "./PopupDeleteCard";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { Login } from "./Login";
 import { Register } from "./Register";
-import {  login, register } from "../utils/auth";
+import { login, register } from "../utils/auth";
 import { InfoToolTip } from './InfoTooltip';
 
 import successIcon from "../images/success.svg";
@@ -80,7 +80,7 @@ export const App = () => {
       .catch((err) => console.log(777, err))
   }
 
-  function checkCookies (cookie, value) {
+  function checkCookies(cookie, value) {
     const str = '^(.*;)?s*' + cookie + 's*=s*[^;]+(.*)?$'
     const regExp = new RegExp(str)
     const res = document.cookie.match(regExp)
