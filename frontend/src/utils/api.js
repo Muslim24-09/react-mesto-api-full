@@ -15,20 +15,28 @@ class Api {
     this._headers = headers
   }
 
-  _checkResponse(res) {
-    if (res.ok) {
-      return res.json()
-    } else {
-      return Promise.reject(`Ошибка: ${res.status}`)
-      // return Promise.reject(res)
-    }
-  }
+  // _checkResponse(res) {
+  //   if (res.ok) {
+  //     return res.json()
+  //   } else {
+  //     return Promise.reject(`Ошибка: ${res.status}`)
+  //     // return Promise.reject(res)
+  //   }
+  // }
 
   _checkRequest(url, options) {
-    options.credentials = 'include';
-    options.mode = 'no-cors'
+    // options.credentials = 'include';
+    // return fetch(url, options)
+    //   .then(res => this._checkResponse(res))
+    options.credentials = 'include'
     return fetch(url, options)
-      .then(res => this._checkResponse(res))
+      .then(res => {
+        if (res.ok) {
+          return res.json()
+            .then(res => { return res.data })
+        }
+        return Promise.reject(new Error(`Ошибка: ${res.status}`))
+      })
   }
 
   // сделано

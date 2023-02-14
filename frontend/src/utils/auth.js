@@ -1,6 +1,7 @@
 const BASE_URL = 'https://api.mooslim-mesto.nomoredomainsclub.ru'
 
 function checkResponse(res) {
+  console.log(222, res);
   if (res.ok) {
     return res.json();
   }
@@ -9,12 +10,12 @@ function checkResponse(res) {
 
 export const register = ({email, password}) => {
   return fetch(`${BASE_URL}/signup`, {
-    credentials: 'include',
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
+    credentials: 'include',
     body: JSON.stringify({
       email: email,
       password: password,
@@ -26,11 +27,11 @@ export const register = ({email, password}) => {
 export const login = ({email, password}) => {
   return fetch(`${BASE_URL}/signin`, {
     method: "POST",
-    credentials: 'include',
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
+    credentials: 'include',
     body: JSON.stringify({
       email: email,
       password: password,
@@ -39,20 +40,19 @@ export const login = ({email, password}) => {
   .then(checkResponse)// поставить выше then где ты localstorage
   .then((data) => {
       if (data.token) {
-      // if (data.ok) {
         localStorage.setItem("jwt", data.token);
         return data;
       }
     })
 };
 
-export const checkToken = () => {
-  const jwt = localStorage.getItem("jwt")
+export const checkToken = (jwt) => {
+  document.cookie = jwt;
   return fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
-      "Content-Type": "application/json",
-      Cookies: `jwt=${jwt}`,
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
   })
