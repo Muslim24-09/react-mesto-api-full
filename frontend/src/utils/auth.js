@@ -1,12 +1,10 @@
-// const BASE_URL = 'https://auth.nomoreparties.co';
 const BASE_URL = 'https://api.mooslim-mesto.nomoredomainsclub.ru'
 
 function checkResponse(res) {
-  console.log(111, res);
   if (res.ok) {
     return res.json();
   }
-  return Promise.reject(`222${res.message}`);
+  return Promise.reject(`${res.message}`);
 }
 
 export const register = ({email, password}) => {

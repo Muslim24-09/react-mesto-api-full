@@ -2,6 +2,9 @@ const allowedCors = [
   'https://mooslim-mesto.nomoredomainsclub.ru',
   'http://mooslim-mesto.nomoredomainsclub.ru',
   'http://localhost:3000',
+  'https://localhost:3000',
+  'http://localhost:3001',
+  'https://localhost:3001',
 ];
 
 const cors = (req, res, next) => {
