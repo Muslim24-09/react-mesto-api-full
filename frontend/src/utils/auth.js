@@ -1,7 +1,6 @@
 const BASE_URL = 'https://api.mooslim-mesto.nomoredomainsclub.ru'
 
 function checkResponse(res) {
-  console.log(222, res);
   if (res.ok) {
     return res.json();
   }
@@ -46,8 +45,7 @@ export const login = ({email, password}) => {
     })
 };
 
-export const checkToken = (jwt) => {
-  document.cookie = jwt;
+export const checkToken = () => {
   return fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {

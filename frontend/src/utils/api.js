@@ -15,19 +15,7 @@ class Api {
     this._headers = headers
   }
 
-  // _checkResponse(res) {
-  //   if (res.ok) {
-  //     return res.json()
-  //   } else {
-  //     return Promise.reject(`Ошибка: ${res.status}`)
-  //     // return Promise.reject(res)
-  //   }
-  // }
-
   _checkRequest(url, options) {
-    // options.credentials = 'include';
-    // return fetch(url, options)
-    //   .then(res => this._checkResponse(res))
     options.credentials = 'include'
     return fetch(url, options)
       .then(res => {

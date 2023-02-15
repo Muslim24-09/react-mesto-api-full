@@ -51,27 +51,30 @@ export const App = () => {
 
   }, [isSuccessLoggedIn])
 
+useEffect(() => {
+  const token = localStorage.getItem('jwt')
+  const cookies = document.cookie
+  if (token === cookies) {
+    checkToken()
+    .then((res) => {
+      setIsSuccessLoggedIn(true)
+      setEmail(res.data.email)
+    })
+    .catch((err) => {
+      if (err.status === 401) {
+        console.log("401 — Токен не передан или передан не в том формате");
+      }
+      console.log("401 — Переданный токен некорректен");
+    });
+  } 
+}, [])
+
+
   useEffect(() => {
-    const token = localStorage.getItem("jwt")
-    console.log(333, document.cookie);
-    if (token) {  
-      checkToken(token)
-        .then((res) => {
-          setIsSuccessLoggedIn(true);
-          setEmail(res.data.email)
-          history.push('/')
-        })
-        .catch((err) => {
-          if (err.status === 401) {
-            console.log("401 — Токен не передан или передан не в том формате");
-          }
-          console.log(`401 - ${token}`);
-          // console.log("401 — Переданный токен некорректен");
-        });
+    if (isSuccessLoggedIn) {
+      history.push('/')
     }
-  }, [history])
-
-
+  }, [isSuccessLoggedIn, history])
 
   const closeAllPopups = () => {
     setIsEditAvatarPopupOpen(false)
