@@ -5,14 +5,14 @@ export const Card = ({ card, onCardClick, onCardLike, onDeleteCard }) => {
 
 	const user = useContext(CurrentUserContext)
 	// Определяем, являемся ли мы владельцем текущей карточки
-	const isOwn = card.owner._id === user._id;
+	const isOwn = card.owner === user._id;
 
 	// Создаём переменную, которую после зададим в `className` для кнопки удаления
 	const cardDeleteButtonClassName = (
 		` ${isOwn ? 'element__delete-button' : 'element__delete-button hidden'}`
 	);
 
-	const isLiked = card.likes.some(i => i._id === user._id)
+	const isLiked = card.likes.some(i => i === user._id)
 	const cardLikeButtonClassName = (`
 	element__like-button ${isLiked ? 'element__like-button_active' : ''}`)
 

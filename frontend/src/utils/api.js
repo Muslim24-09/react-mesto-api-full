@@ -38,14 +38,14 @@ class Api {
   }
 
   // сделано
-  addItem({ name, link }) {
+  addItem(card) {
     const url = `${this._baseUrl}/cards`
     const options = {
       method: 'POST',
       headers: this._headers,
       body: JSON.stringify({
-        name: `${name}`,
-        link: `${link}`
+        name: `${card.name}`,
+        link: `${card.link}`
       })
     }
     return this._checkRequest(url, options)

@@ -51,23 +51,21 @@ export const App = () => {
 
   }, [isSuccessLoggedIn])
 
-useEffect(() => {
-  const token = localStorage.getItem('jwt')
-  const cookies = document.cookie
-  if (token === cookies) {
-    checkToken()
-    .then((res) => {
-      setIsSuccessLoggedIn(true)
-      setEmail(res.data.email)
-    })
-    .catch((err) => {
-      if (err.status === 401) {
-        console.log("401 — Токен не передан или передан не в том формате");
-      }
-      console.log("401 — Переданный токен некорректен");
-    });
-  } 
-}, [])
+  useEffect(() => {
+    const token = localStorage.getItem('jwt')
+    checkToken(token)
+      .then((res) => {
+        setIsSuccessLoggedIn(true)
+        setEmail(res.data.email)
+      })
+      .catch((err) => {
+        if (err.status === 401) {
+          console.log("401 — Токен не передан или передан не в том формате");
+        }
+        console.log("401 — Переданный токен некорректен");
+      });
+
+  }, [])
 
 
   useEffect(() => {
@@ -122,21 +120,23 @@ useEffect(() => {
         closeAllPopups()
       })
       .catch((err) => console.log(err))
-
   }
 
   const handleCardLike = (card) => {
     // Снова проверяем, есть ли уже лайк на этой карточке
-    const isLiked = card.likes.some(i => i._id === currentUser._id);
+    const isLiked = card.likes.some(i =>  i === currentUser._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
     api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
-        setCards((state) => state.map((c) => c._id === card._id ? newCard : c))
+        setCards((state) => state.map((c) => {
+          return c._id === card._id ? newCard : c
+        }))
       })
       .catch((err) => console.log(err))
   }
 
   const handleAddPlaceSubmit = (card) => {
+// card= {name, link}
     api.addItem(card)
       .then(res => {
         setCards([res, ...cards])

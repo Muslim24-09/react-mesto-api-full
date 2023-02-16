@@ -45,7 +45,7 @@ export const login = ({email, password}) => {
     })
 };
 
-export const checkToken = () => {
+export const checkToken = (jwt) => {
   return fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
@@ -55,4 +55,7 @@ export const checkToken = () => {
     credentials: 'include',
   })
     .then(checkResponse)
+    .then((data) => {
+      if (data.token === jwt) return true
+    })
 };

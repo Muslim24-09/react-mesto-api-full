@@ -82,10 +82,11 @@ const getUsers = (_, res, next) => {
 const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
+      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
       if (!user) {
         throw new NotFoundError('Запрашиваемый пользователь не найден');
       }
-      return res.status(200).send({ data: user });
+      return res.status(200).send({ data: user, token });
     })
     .catch((err) => next(err));
 };
