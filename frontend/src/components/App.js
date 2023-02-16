@@ -39,23 +39,23 @@ export const App = () => {
 
   const history = useHistory();
 
-  useEffect(() => {
-    if (isSuccessLoggedIn) {
-      Promise.all([api.getAddingPictures(), api.getUserInfo()])
-        .then(([cardsInfo, userInfo]) => {
-          setCurrentUser(userInfo)
-          setCards(cardsInfo)
-        })
-        .catch((err) => console.log(err))
-    } else return;
-
-  }, [isSuccessLoggedIn])
+  const getAllData = () => {
+    const cardsInfo = api.getAddingPictures();
+    const userInfo = api.getUserInfo();
+    Promise.all([cardsInfo, userInfo])
+      .then((res) => {
+        setCurrentUser(res[1])
+        setCards(res[0])
+      })
+      .catch((err) => console.log(err))
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('jwt')
     checkToken(token)
       .then((res) => {
         setIsSuccessLoggedIn(true)
+        getAllData()
         setEmail(res.data.email)
       })
       .catch((err) => {
@@ -70,6 +70,7 @@ export const App = () => {
 
   useEffect(() => {
     if (isSuccessLoggedIn) {
+      getAllData()
       history.push('/')
     }
   }, [isSuccessLoggedIn, history])
@@ -124,7 +125,7 @@ export const App = () => {
 
   const handleCardLike = (card) => {
     // Снова проверяем, есть ли уже лайк на этой карточке
-    const isLiked = card.likes.some(i =>  i === currentUser._id);
+    const isLiked = card.likes.some(i => i === currentUser._id);
     // Отправляем запрос в API и получаем обновлённые данные карточки
     api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
@@ -136,7 +137,6 @@ export const App = () => {
   }
 
   const handleAddPlaceSubmit = (card) => {
-// card= {name, link}
     api.addItem(card)
       .then(res => {
         setCards([res, ...cards])
@@ -144,7 +144,6 @@ export const App = () => {
       })
       .catch((err) => console.log(err))
     card.name = ''
-
   }
 
   const handleCardDelete = () => {

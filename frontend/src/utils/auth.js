@@ -36,7 +36,7 @@ export const login = ({email, password}) => {
       password: password,
     }),
   })
-  .then(checkResponse)// поставить выше then где ты localstorage
+  .then(checkResponse)
   .then((data) => {
       if (data.token) {
         localStorage.setItem("jwt", data.token);
@@ -55,7 +55,4 @@ export const checkToken = (jwt) => {
     credentials: 'include',
   })
     .then(checkResponse)
-    .then((data) => {
-      if (data.token === jwt) return true
-    })
 };
