@@ -46,6 +46,7 @@ export const login = ({email, password}) => {
 };
 
 export const checkToken = (jwt) => {
+  if (jwt === null) return Promise.reject(``);
   return fetch(`${BASE_URL}/users/me`, {
     method: "GET",
     headers: {
